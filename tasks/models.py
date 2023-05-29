@@ -14,6 +14,19 @@ class Task(models.Model):
         'todo', 'To Do'), ('in_progress', 'In Progress'), ('completed', 'Completed')], default='todo')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    comments = models.ForeignKey(
+        'Comment', on_delete=models.CASCADE, related_name='task_comments', null=True, blank=True)
 
     def __str__(self):
         return self.title
+
+
+class Comment(models.Model):
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, related_name='comment_task')
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.text

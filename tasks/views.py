@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from users.serializers import CustomUserSerializer
 from .models import Task
 from .serializers import TaskSerializer
+from .models import Comment
+from .serializers import CommentSerializer
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -39,3 +41,18 @@ def update(self, request, *args, **kwargs):
         return Response({'status': 'Task status updated successfully.'})
 
     return Response({'error': 'Status field is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Comment.objects.all()
+        else:
+            return Comment.objects.filter(author=user)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
